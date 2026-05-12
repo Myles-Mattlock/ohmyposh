@@ -1,0 +1,1 @@
+oh-my-posh init pwsh --config 'C:\Users\Myles Mattlock\oh-my-posh\themes\myles.omp.json' | Invoke-Expression
