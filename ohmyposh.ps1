@@ -27,7 +27,7 @@ if (Test-Path $Profile) {
 Invoke-WebRequest -Uri https://github.com/Myles-Mattlock/ohmyposh/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
 Write-Host "Installed PowerShell Profile" -ForegroundColor Green
 
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/Myles-Mattlock/ohmyposh/main/myles.omp.json -OutFile (Split-Path $Profile)
+Invoke-WebRequest -Uri https://github.com/Myles-Mattlock/ohmyposh/raw/main/myles.omp.json -OutFile (Split-Path $Profile)
 Write-Host "Installed oh-my-posh theme" -ForegroundColor Green
 
 Write-Host "Installing fonts this will take a while..."
