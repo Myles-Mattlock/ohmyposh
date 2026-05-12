@@ -1,1 +1,1 @@
-oh-my-posh init pwsh --config '%USERPROFILE%\ohmyposh\myles.omp.json' | Invoke-Expression
+oh-my-posh init pwsh --config https://github.com/Myles-Mattlock/ohmyposh/raw/main/myles.omp.json | Invoke-Expression
