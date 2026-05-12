@@ -27,21 +27,21 @@ if (Test-Path $Profile) {
 Invoke-WebRequest -Uri https://github.com/Myles-Mattlock/ohmyposh/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
 Write-Host "Installed PowerShell Profile" -ForegroundColor Green
 
-Invoke-WebRequest -Uri https://github.com/myles-mattlock/ohmyposh/raw/main/themes/cobalt2.omp.json -OutFile (Split-Path $Profile)
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/Myles-Mattlock/ohmyposh/main/myles.omp.json -OutFile (Split-Path $Profile)
 Write-Host "Installed oh-my-posh theme" -ForegroundColor Green
 
 Write-Host "Installing fonts this will take a while..."
 
-Invoke-WebRequest -Uri https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip -OutFile CascadiaCode.zip
-Expand-Archive -Path CascadiaCode.zip
+Invoke-WebRequest -Uri https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaMono.zip -OutFile CascadiaMono.zip
+Expand-Archive -Path CascadiaMono.zip
 
-Get-ChildItem CascadiaCode -Filter *.ttf | ForEach-Object {
+Get-ChildItem CascadiaMono -Filter *.ttf | ForEach-Object {
     ((New-Object -ComObject Shell.Application).Namespace(0x14)).CopyHere($_.FullName)
     "Installed Font $(Split-Path $_ -Leaf)"
 }
 
-Remove-Item -Path CascadiaCode.zip
-Remove-Item -Path CascadiaCode -Recurse
+Remove-Item -Path CascadiaMono.zip
+Remove-Item -Path CascadiaMono -Recurse
 
 Write-Host "Installing dependencies..."
 
