@@ -48,7 +48,7 @@ Write-Host "Installing dependencies..."
 Install-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue | Out-Null
 Install-Module -Name Terminal-Icons -Force
 
-# If you dont have winget then fuck you
+
 winget install JanDeDobbeleer.OhMyPosh --source winget --silent
 
 Write-Host "Installtion Complete!" -ForegroundColor Green
