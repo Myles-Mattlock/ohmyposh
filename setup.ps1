@@ -1,10 +1,10 @@
 if (-Not ($Env:WT_SESSION)) {
-    Write-Host "You must use Windows Terminal to install ChrisTitusTech's PowerShell profile" -ForegroundColor Red
+    Write-Host "Windows Terminal is required to install this PowerShell profile" -ForegroundColor Red
     return
 }
 
 if ($PSVersionTable.PSVersion.Major -ne 7) {
-    Write-Host "You must use PowerShell 7 to install ChrisTitusTech's PowerShell profile" -ForegroundColor Red
+    Write-Host "PowerShell 7 is required to install this PowerShell profile" -ForegroundColor Red
     return
 }
 
@@ -14,7 +14,7 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 if (-Not (Test-Connection 8.8.8.8 -Count 1 -TimeoutSeconds 1 -Quiet)) { 
-    Write-Host "You must have a activate internet connection to proceed" -ForegroundColor Red
+    Write-Host "internet connection required to proceed" -ForegroundColor Red
     return
 }
 
