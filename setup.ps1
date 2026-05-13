@@ -19,6 +19,7 @@ if (-Not (Test-Connection 8.8.8.8 -Count 1 -TimeoutSeconds 1 -Quiet)) {
 }
 
 # --- Profile Setup ---
+Write-Host "Setting up PowerShell Profile..." -ForegroundColor Cyan
 if (Test-Path $Profile) {
     Move-Item -Path $Profile -Destination ($Profile + ".bak") -Force
 } else {
@@ -30,33 +31,49 @@ if (Test-Path $Profile) {
 Invoke-WebRequest -Uri "https://github.com/Myles-Mattlock/ohmyposh/raw/main/Microsoft.PowerShell_profile.ps1" -OutFile $Profile
 Write-Host "Installed PowerShell Profile" -ForegroundColor Green
 
-# Use the directory of the profile for the JSON theme
 $themePath = Join-Path (Split-Path $Profile) "myles.omp.json"
 Invoke-WebRequest -Uri "https://github.com/Myles-Mattlock/ohmyposh/raw/main/myles.omp.json" -OutFile $themePath
 Write-Host "Installed oh-my-posh theme" -ForegroundColor Green
 
-# --- Font Installation ---
-Write-Host "Installing fonts (overwriting if exists)..." -ForegroundColor Cyan
+# --- Font Installation (Silent Overwrite) ---
+Write-Host "Downloading and installing fonts..." -ForegroundColor Cyan
 
-Invoke-WebRequest -Uri "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaMono.zip" -OutFile "CascadiaMono.zip"
-Expand-Archive -Path "CascadiaMono.zip" -DestinationPath "CascadiaMono" -Force
+$zipUrl = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaMono.zip"
+$zipFile = "CascadiaMono.zip"
+$tempFolder = "CascadiaMono_Temp"
 
-$shellApp = New-Object -ComObject Shell.Application
-$fontsFolder = $shellApp.Namespace(0x14)
+Invoke-WebRequest -Uri $zipUrl -OutFile $zipFile
+if (Test-Path $tempFolder) { Remove-Item $tempFolder -Recurse -Force }
+Expand-Archive -Path $zipFile -DestinationPath $tempFolder -Force
 
-Get-ChildItem CascadiaMono -Filter *.ttf -Recurse | ForEach-Object {
+$FontFolder = Join-Path $env:windir "Fonts"
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+
+Get-ChildItem $tempFolder -Filter *.ttf -Recurse | ForEach-Object {
+    $DestinationPath = Join-Path $FontFolder $_.Name
+    
     try {
-        # Flag 20 = 16 (Yes to all/Overwrite) + 4 (No progress UI)
-        $fontsFolder.CopyHere($_.FullName, 20)
+        # Delete first to prevent the Windows 'Replace' popup
+        if (Test-Path $DestinationPath) {
+            Remove-Item $DestinationPath -Force -ErrorAction Stop
+        }
+        
+        Copy-Item $_.FullName -Destination $DestinationPath -Force
+        
+        # Register in Registry
+        $FontName = $_.BaseName
+        New-ItemProperty -Path $RegPath -Name "$FontName (TrueType)" -Value $_.Name -PropertyType String -Force | Out-Null
+        
         Write-Host "Successfully installed: $($_.Name)" -ForegroundColor Gray
-    } catch {
-        Write-Host "Failed to install $($_.Name). It may be in use." -ForegroundColor Yellow
+    }
+    catch {
+        Write-Host "Skipped: $($_.Name) (File is currently in use by Windows)" -ForegroundColor Yellow
     }
 }
 
-# Cleanup zip and temp folder
-Remove-Item -Path "CascadiaMono.zip" -Force
-Remove-Item -Path "CascadiaMono" -Recurse -Force
+# Cleanup
+Remove-Item -Path $zipFile -Force
+Remove-Item -Path $tempFolder -Recurse -Force
 
 # --- Dependencies ---
 Write-Host "Installing dependencies..." -ForegroundColor Cyan
@@ -64,8 +81,8 @@ Write-Host "Installing dependencies..." -ForegroundColor Cyan
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -ErrorAction SilentlyContinue | Out-Null
 Install-Module -Name Terminal-Icons -Force -AllowClobber -Scope CurrentUser
 
-# Winget install for OhMyPosh
 Write-Host "Installing Oh My Posh via WinGet..."
 winget install JanDeDobbeleer.OhMyPosh --source winget --silent --accept-source-agreements --accept-package-agreements
 
-Write-Host "Installation Complete! Restart Windows Terminal to see changes." -ForegroundColor Green
+Write-Host "`nInstallation Complete!" -ForegroundColor Green
+Write-Host "Note: If any fonts were skipped, close all Terminal windows and run again." -ForegroundColor Yellow
